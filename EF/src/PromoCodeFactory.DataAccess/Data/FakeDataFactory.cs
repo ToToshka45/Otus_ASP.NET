@@ -16,7 +16,7 @@ namespace PromoCodeFactory.DataAccess.Data
                 Email = "owner@somemail.ru",
                 FirstName = "Иван",
                 LastName = "Сергеев",
-                Role = Roles.FirstOrDefault(x => x.Name == "Admin"),
+                RoleId = Roles.FirstOrDefault(x => x.Name == "Admin").Id,
                 AppliedPromocodesCount = 5
             },
             new Employee()
@@ -25,7 +25,7 @@ namespace PromoCodeFactory.DataAccess.Data
                 Email = "andreev@somemail.ru",
                 FirstName = "Петр",
                 LastName = "Андреев",
-                Role = Roles.FirstOrDefault(x => x.Name == "PartnerManager"),
+                RoleId = Roles.FirstOrDefault(x => x.Name == "PartnerManager").Id,
                 AppliedPromocodesCount = 10
             },
         };
@@ -70,6 +70,8 @@ namespace PromoCodeFactory.DataAccess.Data
             get
             {
                 var customerId = Guid.Parse("a6c8c6b1-4349-45b0-ab31-244740aaf0f0");
+                var customerId2 = Guid.Parse("d3c8c6b1-4349-45b0-ab31-244740aaf0f0");
+
                 var customers = new List<Customer>()
                 {
                     new Customer()
@@ -78,12 +80,48 @@ namespace PromoCodeFactory.DataAccess.Data
                         Email = "ivan_sergeev@mail.ru",
                         FirstName = "Иван",
                         LastName = "Петров",
-                        //TODO: Добавить предзаполненный список предпочтений
+                        CustomerPreferences = new List<CustomerPreference>()
+                        {
+                            new CustomerPreference()
+                            {
+                                CustomerId = customerId,
+                                PreferenceId = Preferences.FirstOrDefault(x => x.Name == "Театр").Id,
+                            }
+                        }
+                    },
+                    new Customer()
+                    {
+                        Id = customerId2,
+                        Email = "det_detev@mail.ru",
+                        FirstName = "Деть",
+                        LastName = "Детев",
+                        CustomerPreferences = new List<CustomerPreference>()
+                        {
+                            new CustomerPreference()
+                            {
+                                CustomerId = customerId2,
+                                PreferenceId = Preferences.FirstOrDefault(x => x.Name == "Дети").Id,
+                            }
+                        }
                     }
                 };
 
                 return customers;
             }
         }
+
+        public static IEnumerable<PromoCode> PromoCodes => new List<PromoCode>()
+        {
+            new PromoCode()
+            {
+                Id = Guid.Parse("F5A28A07-7753-4981-8638-B677B3DD3DC8"),
+                Code = "HelloKitty",
+                ServiceInfo = "Hello Kitty Code!",
+                BeginDate = DateTime.Now,
+                EndDate = DateTime.Now + TimeSpan.FromDays(7),
+                PartnerName = "VasyaInk",
+                PreferenceId = Preferences.FirstOrDefault(x => x.Name == "Театр").Id,
+            }
+        };
     }
 }
