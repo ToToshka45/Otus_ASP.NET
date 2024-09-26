@@ -38,7 +38,7 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// <param name="cancellationToken"> Токен отмены </param>
         /// <param name="asNoTracking"> Вызвать с AsNoTracking. </param>
         /// <returns> Список сущностей. </returns>
-        public override async Task<List<PromoCode>> GetAllAsync( CancellationToken cancellationToken, bool asNoTracking = false )
+        public override async Task<List<PromoCode>> GetAllAsync( CancellationToken cancellationToken )
         {
             var query = _entitySet.AsQueryable();
             query = query
