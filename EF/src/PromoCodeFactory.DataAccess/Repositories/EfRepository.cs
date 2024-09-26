@@ -38,26 +38,24 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// <returns> Найденную сущность или <see langword="null" />.</returns>
         public virtual async Task<T> GetAsync( Guid id, CancellationToken cancellationToken )
         {
-            return await _entitySet.FindAsync( (object) id, cancellationToken );
+            return await _entitySet.FindAsync( id, cancellationToken );
         }
 
         /// <summary>
         /// Запросить все сущности в базе.
         /// </summary>
-        /// <param name="asNoTracking"> Вызвать с AsNoTracking. </param>
         /// <returns> IQueryable массив сущностей. </returns>
-        public virtual IQueryable<T> GetAll( bool asNoTracking = false )
+        public virtual IQueryable<T> GetAll()
         {
-            return asNoTracking ? _entitySet.AsNoTracking() : _entitySet;
+            return _entitySet;
         }
 
         /// <summary>
         /// Запросить все сущности в базе.
         /// </summary>
         /// <param name="cancellationToken"> Токен отмены </param>
-        /// <param name="asNoTracking"> Вызвать с AsNoTracking. </param>
         /// <returns> Список сущностей. </returns>
-        public virtual async Task<List<T>> GetAllAsync( CancellationToken cancellationToken, bool asNoTracking = false )
+        public virtual async Task<List<T>> GetAllAsync( CancellationToken cancellationToken )
         {
             return await GetAll().ToListAsync( cancellationToken );
         }

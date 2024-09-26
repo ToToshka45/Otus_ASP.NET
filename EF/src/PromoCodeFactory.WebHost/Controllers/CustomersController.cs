@@ -103,16 +103,16 @@ namespace PromoCodeFactory.WebHost.Controllers
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
-                CustomerPreferences = request.PreferenceIds.Select( pId =>
+                CustomerPreferences = ( await Task.WhenAll( request.PreferenceIds.Select( async pId =>
                 {
-                    var preference = _preferenceRepository.Get( pId );
+                    var preference = await _preferenceRepository.GetAsync( pId, Request.HttpContext.RequestAborted );
 
                     return new CustomerPreference()
                     {
                         PreferenceId = pId,
                         Preference = preference,
                     };
-                } ).ToList()
+                } ) ) ).ToList(),
             };
 
             var createdCustomer = await _customerRepository.AddAsync( newCustomer );

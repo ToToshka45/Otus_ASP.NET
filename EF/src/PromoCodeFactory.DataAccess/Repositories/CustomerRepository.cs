@@ -41,10 +41,16 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// <returns> Список сущностей. </returns>
         public async Task<List<Customer>> GetAllByPreferenceAsync( string preference, CancellationToken cancellationToken )
         {
-            var query =  _entitySet.Join( Context.Set<CustomerPreference>(), a => a.Id, b => b.CustomerId, ( a, b ) => new { A = a, B = b } )
-                                   .Join( Context.Set<Preference>(), ab => ab.B.PreferenceId, c => c.Id, ( ab, c ) => new { A = ab.A, B = ab.B, C = c } )
-                                   .Where( customerWithPreference => customerWithPreference.C.Name == preference )
-                                   .Select( customerWithPreference => customerWithPreference.A ).AsQueryable();
+            //var query =  _entitySet.Join( Context.Set<CustomerPreference>(), a => a.Id, b => b.CustomerId, ( a, b ) => new { A = a, B = b } )
+            //                       .Join( Context.Set<Preference>(), ab => ab.B.PreferenceId, c => c.Id, ( ab, c ) => new { A = ab.A, B = ab.B, C = c } )
+            //                       .Where( customerWithPreference => customerWithPreference.C.Name == preference )
+            //                       .Select( customerWithPreference => customerWithPreference.A ).AsQueryable();
+
+            var query = _entitySet
+                .Include( c => c.CustomerPreferences )
+                .ThenInclude( cp => cp.Preference )
+                .Where( c => c.CustomerPreferences.Any( cp => cp.Preference.Name == preference ) )
+                .AsQueryable();
 
             return await query.ToListAsync( cancellationToken );
         }

@@ -14,15 +14,11 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var host = CreateHostBuilder(args).Build();
+        var host = CreateHostBuilder(args)
+            .Build();
 
-        using ( var scope = host.Services.CreateScope() )
-        {
-            var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-            db.Database.EnsureDeleted();
-            db.Database.Migrate();
-            Seed( db );
-        }
+        host.MigrateDB();
+        host.SeedDB();
 
         host.Run();
     }
@@ -33,34 +29,4 @@ public class Program
             { 
                 webBuilder.UseStartup<Startup>();
             } );
-
-    private static void Seed( DatabaseContext databaseContext )
-    {
-        foreach ( var item in FakeDataFactory.Employees )
-        {
-            databaseContext.Add<Employee>( item );
-        }
-
-        foreach ( var item in FakeDataFactory.Roles )
-        {
-            databaseContext.Add<Role>( item );
-        }
-
-        foreach ( var item in FakeDataFactory.Preferences )
-        {
-            databaseContext.Add<Preference>( item );
-        }
-
-        foreach ( var item in FakeDataFactory.Customers )
-        {
-            databaseContext.Add<Customer>( item );
-        }
-
-        foreach ( var item in FakeDataFactory.PromoCodes )
-        {
-            databaseContext.Add<PromoCode>( item );
-        }
-
-        databaseContext.SaveChanges();
-    }
 }

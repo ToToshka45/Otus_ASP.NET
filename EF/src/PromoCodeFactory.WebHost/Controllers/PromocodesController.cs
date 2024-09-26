@@ -62,6 +62,12 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpPost]
         public async Task<IActionResult> GivePromoCodesToCustomersWithPreferenceAsync(GivePromoCodeRequest request)
         {
+            var preference = await _preferenceRepository.GetByNameAsync( request.Preference, Request.HttpContext.RequestAborted );
+            if ( preference is null )
+            {
+                return NotFound("Заданное предпочтение не было найдено.");
+            }
+
             // Создание промокода
             var newPromoCode = new PromoCode()
             {
@@ -70,7 +76,7 @@ namespace PromoCodeFactory.WebHost.Controllers
                 BeginDate = DateTime.Now,
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 PartnerName = request.PartnerName,
-                PreferenceId = (await _preferenceRepository.GetByNameAsync( request.Preference, Request.HttpContext.RequestAborted ) ).Id
+                PreferenceId = preference.Id
             };
 
             var createdPromoCode = await _promocodeRepository.AddAsync( newPromoCode );

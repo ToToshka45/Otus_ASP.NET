@@ -11,21 +11,6 @@ namespace PromoCodeFactory.Core.Abstractions.Repositories
         where T : BaseEntity
     {
         /// <summary>
-        /// Запросить все сущности в базе.
-        /// </summary>
-        /// <param name="noTracking"> Вызвать с AsNoTracking.</param>
-        /// <returns> IQueryable массив сущностей.</returns>
-        IQueryable<T> GetAll( bool noTracking = false );
-
-        /// <summary>
-        /// Запросить все сущности в базе.
-        /// </summary>
-        /// <param name="cancellationToken"> Токен отмены. </param>
-        /// <param name="asNoTracking"> Вызвать с AsNoTracking. </param>
-        /// <returns> Список сущностей. </returns>
-        Task<List<T>> GetAllAsync( CancellationToken cancellationToken, bool asNoTracking = false );
-
-        /// <summary>
         /// Получить сущность по Id.
         /// </summary>
         /// <param name="id"> Id сущности. </param>
@@ -39,6 +24,19 @@ namespace PromoCodeFactory.Core.Abstractions.Repositories
         /// <param name="cancellationToken"></param>
         /// <returns> Cущность. </returns>
         Task<T> GetAsync( Guid id, CancellationToken cancellationToken );
+
+        /// <summary>
+        /// Запросить все сущности в базе.
+        /// </summary>
+        /// <returns> IQueryable массив сущностей.</returns>
+        IQueryable<T> GetAll();
+
+        /// <summary>
+        /// Запросить все сущности в базе.
+        /// </summary>
+        /// <param name="cancellationToken"> Токен отмены. </param>
+        /// <returns> Список сущностей. </returns>
+        Task<List<T>> GetAllAsync( CancellationToken cancellationToken );
 
         /// <summary>
         /// Удалить сущность.

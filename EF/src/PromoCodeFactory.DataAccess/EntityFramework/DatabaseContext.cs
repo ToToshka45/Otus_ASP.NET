@@ -8,11 +8,6 @@ namespace PromoCodeFactory.DataAccess.EntityFramework
 {
     public class DatabaseContext : DbContext
     {
-        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
-        {
-            
-        }
-
         /// <summary>
         /// Работники.
         /// </summary>
@@ -37,6 +32,11 @@ namespace PromoCodeFactory.DataAccess.EntityFramework
         /// Промо коды.
         /// </summary>
         public DbSet<PromoCode> PromoCodes { get; set; }
+
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+        {
+            
+        }
 
         protected override void OnModelCreating( ModelBuilder modelBuilder )
         {
