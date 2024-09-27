@@ -38,7 +38,7 @@ public class DataValidatorIsPartnerValidTests
     public async void PartnerIsValid_PartnerIsNotActive_ReturnsBadRequest()
     {
         // Arrange
-        Partner partner = DefaultPartnerHelper.CreateBasePartner();
+        Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
         partner.IsActive = false;
 
         // Act

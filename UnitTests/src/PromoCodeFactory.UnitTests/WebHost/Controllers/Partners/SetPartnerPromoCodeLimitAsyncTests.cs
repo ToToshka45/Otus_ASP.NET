@@ -60,7 +60,7 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 Limit = 10,
             };
-            Partner partner = DefaultPartnerHelper.CreateBasePartner();
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
             partner.IsActive = false;
 
             _partnersRepositoryMock
@@ -84,7 +84,7 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 Limit = -1,
             };
-            Partner partner = DefaultPartnerHelper.CreateBasePartner();
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
 
             _partnersRepositoryMock
                 .Setup( repo => repo.GetByIdAsync( partnerId ) )
@@ -107,7 +107,7 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 Limit = 10,
             };
-            Partner partner = DefaultPartnerHelper.CreateBasePartner();
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
             partner.NumberIssuedPromoCodes = 3;
 
             _partnersRepositoryMock
@@ -132,7 +132,7 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 Limit = 10,
             };
-            Partner partner = DefaultPartnerHelper.CreateBasePartner();
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
             var partnerLimit = partner.PartnerLimits.FirstOrDefault();
 
             _partnersRepositoryMock
@@ -157,7 +157,7 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 Limit = 10,
             };
-            Partner partner = DefaultPartnerHelper.CreateBasePartner();
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
 
             _partnersRepositoryMock
                 .Setup( repo => repo.GetByIdAsync( partnerId ) )
@@ -186,7 +186,7 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 Limit = 10,
             };
-            Partner partner = DefaultPartnerHelper.CreateBasePartner();
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
             partner.PartnerLimits.Clear();
 
             _partnersRepositoryMock
@@ -212,7 +212,7 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
                 EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
                 Limit = 10,
             };
-            Partner partner = DefaultPartnerHelper.CreateBasePartner();
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
             partner.NumberIssuedPromoCodes = numberIssuedPromoCodes;
             partner.PartnerLimits.FirstOrDefault().EndDate = DateTime.Now - TimeSpan.FromDays( 1 );
 
