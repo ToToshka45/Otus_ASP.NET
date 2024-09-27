@@ -36,7 +36,6 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// Запросить все сущности в базе.
         /// </summary>
         /// <param name="cancellationToken"> Токен отмены </param>
-        /// <param name="asNoTracking"> Вызвать с AsNoTracking. </param>
         /// <returns> Список сущностей. </returns>
         public override async Task<List<PromoCode>> GetAllAsync( CancellationToken cancellationToken )
         {
