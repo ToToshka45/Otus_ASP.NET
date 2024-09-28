@@ -153,7 +153,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         }
 
         /// <summary>
-        /// Удалить клиента по идентификатору вместе с выданными ему промокодами
+        /// Удалить клиента по идентификатору вместе с выданными ему промокодами. Промокоды удаляются каскадно
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -164,12 +164,6 @@ namespace PromoCodeFactory.WebHost.Controllers
 
             if ( wasDeleted )
             {
-                var entityItem = await _customerRepository.GetAsync( id, Request.HttpContext.RequestAborted );
-                foreach ( var promocode in entityItem.PromoCodes )
-                {
-                    _promocodeRepository.Delete( promocode );
-                }
-
                 await _customerRepository.SaveChangesAsync( Request.HttpContext.RequestAborted );
             }
 

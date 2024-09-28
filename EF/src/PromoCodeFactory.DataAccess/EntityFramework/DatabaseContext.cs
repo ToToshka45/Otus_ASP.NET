@@ -45,6 +45,11 @@ namespace PromoCodeFactory.DataAccess.EntityFramework
             modelBuilder.Entity<CustomerPreference>()
                 .HasKey( cp => new { cp.CustomerId, cp.PreferenceId } );
 
+            modelBuilder.Entity<Customer>()
+                .HasMany( c => c.PromoCodes )
+                .WithOne( pc => pc.Customer )
+                .OnDelete( DeleteBehavior.Cascade );
+
             modelBuilder.Entity<Employee>().Property( c => c.FirstName ).HasMaxLength( 100 );
             modelBuilder.Entity<Employee>().Property( c => c.LastName ).HasMaxLength( 100 );
             modelBuilder.Entity<Employee>().Property( c => c.Email ).HasMaxLength( 100 );
