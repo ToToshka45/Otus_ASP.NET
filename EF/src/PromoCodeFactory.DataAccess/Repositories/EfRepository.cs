@@ -21,33 +21,29 @@ namespace PromoCodeFactory.DataAccess.Repositories
         }
 
         /// <summary>
-        /// Получить сущность по ID.
-        /// </summary>
-        /// <param name="id"> Id сущности. </param>
-        /// <returns> Найденную сущность или <see langword="null" />.</returns>
-        public virtual T Get( Guid id )
-        {
-            return _entitySet.Find( id );
-        }
-
-        /// <summary>
         /// Получить сущность по Id.
         /// </summary>
         /// <param name="id"> Id сущности. </param>
         /// <param name="cancellationToken"></param>
         /// <returns> Найденную сущность или <see langword="null" />.</returns>
-        public virtual async Task<T> GetAsync( Guid id, CancellationToken cancellationToken )
+        public virtual async Task<T> GetAsync( Guid id, CancellationToken cancellationToken = default )
         {
             return await _entitySet.FindAsync( id, cancellationToken );
         }
 
         /// <summary>
-        /// Запросить все сущности в базе.
+        /// Получить набор сущностей по набору Id.
         /// </summary>
-        /// <returns> IQueryable массив сущностей. </returns>
-        public virtual IQueryable<T> GetAll()
+        /// <param name="ids"> Ids сущностей. </param>
+        /// <param name="cancellationToken"></param>
+        /// <returns> Cущность. </returns>
+        public virtual async Task<List<T>> GetAsyncByIds( IEnumerable<Guid> ids, CancellationToken cancellationToken = default )
         {
-            return _entitySet;
+            var query = _entitySet
+                .Where( item => ids.Any( id => item.Id == id ) )
+                .AsQueryable();
+
+            return await query.ToListAsync( cancellationToken );
         }
 
         /// <summary>
@@ -55,25 +51,9 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// </summary>
         /// <param name="cancellationToken"> Токен отмены </param>
         /// <returns> Список сущностей. </returns>
-        public virtual async Task<List<T>> GetAllAsync( CancellationToken cancellationToken )
+        public virtual async Task<List<T>> GetAllAsync( CancellationToken cancellationToken = default )
         {
-            return await GetAll().ToListAsync( cancellationToken );
-        }
-
-        /// <summary>
-        /// Добавить в базу сущность.
-        /// </summary>
-        /// <param name="entity"> Cущность для добавления. </param>
-        /// <returns> Добавленная сущность или <see langword="null" /> если передан <see langword="null" />.</returns>
-        public virtual T Add( T entity )
-        {
-            if ( entity == null )
-            {
-                return null;
-            }
-
-            var objToReturn = _entitySet.Add( entity );
-            return objToReturn.Entity;
+            return await _entitySet.ToListAsync( cancellationToken );
         }
 
         /// <summary>
@@ -81,14 +61,14 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// </summary>
         /// <param name="entity"> Сущность для добавления. </param>
         /// <returns> Добавленная сущность или <see langword="null" /> если передан <see langword="null" />.</returns>
-        public virtual async Task<T> AddAsync( T entity )
+        public virtual async Task<T> AddAsync( T entity, CancellationToken cancellationToken = default )
         {
             if ( entity == null )
             {
                 return null;
             }
 
-            var objToReturn = await _entitySet.AddAsync( entity );
+            var objToReturn = await _entitySet.AddAsync( entity, cancellationToken );
             return objToReturn.Entity;
         }
 
@@ -96,37 +76,26 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// Добавить в базу массив сущностей.
         /// </summary>
         /// <param name="entities"> Массив сущностей. </param>
-        public virtual void AddRange( IEnumerable<T> entities )
+        public virtual async Task AddRangeAsync( IEnumerable<T> entities, CancellationToken cancellationToken = default )
         {
-            if ( entities == null || !entities.Any() )
-            {
-                return;
-            }
-
-            _entitySet.AddRange( entities );
-        }
-
-        /// <summary>
-        /// Добавить в базу массив сущностей.
-        /// </summary>
-        /// <param name="entities"> Массив сущностей. </param>
-        public virtual async Task AddRangeAsync( IEnumerable<T> entities )
-        {
-            await _entitySet.AddRangeAsync( entities );
+            await _entitySet.AddRangeAsync( entities, cancellationToken );
         }
 
         /// <summary>
         /// Для сущности проставить состояние - что она изменена.
         /// </summary>
         /// <param name="entity"> Сущность для изменения. </param>
-        public virtual void Update( T entity )
+        /// <returns> Была ли сущность обновлена. </returns>
+        public virtual async Task<bool> UpdateAsync( T entity, CancellationToken cancellationToken = default )
         {
             if ( entity == null )
             {
-                return;
+                return false;
             }
 
             Context.Entry( entity ).State = EntityState.Modified;
+
+            return true;
         }
 
         /// <summary>
@@ -134,9 +103,9 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// </summary>
         /// <param name="id"> Id удалённой сущности. </param>
         /// <returns> Была ли сущность удалена. </returns>
-        public virtual bool Delete( Guid id )
+        public virtual async Task<bool> DeleteAsync( Guid id, CancellationToken cancellationToken = default )
         {
-            var obj = _entitySet.Find( id );
+            var obj = await _entitySet.FindAsync( id, cancellationToken );
             if ( obj == null )
             {
                 return false;
@@ -152,7 +121,7 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// </summary>
         /// <param name="entity"> Сущность для удаления. </param>
         /// <returns> Была ли сущность удалена. </returns>
-        public virtual bool Delete( T entity )
+        public virtual async Task<bool> DeleteAsync( T entity, CancellationToken cancellationToken = default )
         {
             if ( entity == null )
             {
@@ -162,31 +131,6 @@ namespace PromoCodeFactory.DataAccess.Repositories
             Context.Entry( entity ).State = EntityState.Deleted;
 
             return true;
-        }
-
-        /// <summary>
-        /// Удалить сущности.
-        /// </summary>
-        /// <param name="entities"> Коллекция сущностей для удаления. </param>
-        /// <returns> Была ли операция завершена успешно. </returns>
-        public virtual bool DeleteRange( IEnumerable<T> entities )
-        {
-            if ( entities == null || !entities.Any() )
-            {
-                return false;
-            }
-
-            _entitySet.RemoveRange( entities );
-
-            return true;
-        }
-
-        /// <summary>
-        /// Сохранить изменения.
-        /// </summary>
-        public virtual void SaveChanges()
-        {
-            Context.SaveChanges();
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 ﻿using PromoCodeFactory.Core.Domain;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,87 +13,58 @@ namespace PromoCodeFactory.Core.Abstractions.Repositories
         /// Получить сущность по Id.
         /// </summary>
         /// <param name="id"> Id сущности. </param>
-        /// <returns> Cущность. </returns>
-        T Get( Guid id );
-
-        /// <summary>
-        /// Получить сущность по Id.
-        /// </summary>
-        /// <param name="id"> Id сущности. </param>
         /// <param name="cancellationToken"></param>
         /// <returns> Cущность. </returns>
-        Task<T> GetAsync( Guid id, CancellationToken cancellationToken );
+        Task<T> GetAsync( Guid id, CancellationToken cancellationToken = default );
 
         /// <summary>
-        /// Запросить все сущности в базе.
+        /// Получить набор сущностей по набору Id.
         /// </summary>
-        /// <returns> IQueryable массив сущностей.</returns>
-        IQueryable<T> GetAll();
+        /// <param name="ids"> Ids сущностей. </param>
+        /// <param name="cancellationToken"></param>
+        /// <returns> Cущность. </returns>
+        Task<List<T>> GetAsyncByIds( IEnumerable<Guid> ids, CancellationToken cancellationToken = default );
 
         /// <summary>
         /// Запросить все сущности в базе.
         /// </summary>
         /// <param name="cancellationToken"> Токен отмены. </param>
         /// <returns> Список сущностей. </returns>
-        Task<List<T>> GetAllAsync( CancellationToken cancellationToken );
+        Task<List<T>> GetAllAsync( CancellationToken cancellationToken = default );
 
         /// <summary>
         /// Удалить сущность.
         /// </summary>
         /// <param name="id"> Id удалённой сущности. </param>
         /// <returns> Была ли сущность удалена. </returns>
-        bool Delete( Guid id );
+        Task<bool> DeleteAsync( Guid id, CancellationToken cancellationToken = default );
 
         /// <summary>
         /// Удалить сущность.
         /// </summary>
         /// <param name="entity"> Cущность для удаления. </param>
         /// <returns> Была ли сущность удалена. </returns>
-        bool Delete( T entity );
-
-        /// <summary>
-        /// Удалить сущности.
-        /// </summary>
-        /// <param name="entities"> Коллекция сущностей для удаления. </param>
-        /// <returns> Была ли операция удаления успешна. </returns>
-        bool DeleteRange( IEnumerable<T> entities );
+        Task<bool> DeleteAsync( T entity, CancellationToken cancellationToken = default );
 
         /// <summary>
         /// Для сущности проставить состояние - что она изменена.
         /// </summary>
         /// <param name="entity"> Сущность для изменения. </param>
-        void Update( T entity );
+        /// <returns> Была ли сущность обновлена. </returns>
+        Task<bool> UpdateAsync( T entity, CancellationToken cancellationToken = default );
 
         /// <summary>
         /// Добавить в базу одну сущность.
         /// </summary>
         /// <param name="entity"> Сущность для добавления. </param>
         /// <returns> Добавленная сущность. </returns>
-        T Add( T entity );
-
-        /// <summary>
-        /// Добавить в базу одну сущность.
-        /// </summary>
-        /// <param name="entity"> Сущность для добавления. </param>
-        /// <returns> Добавленная сущность. </returns>
-        Task<T> AddAsync( T entity );
+        Task<T> AddAsync( T entity, CancellationToken cancellationToken = default );
 
         /// <summary>
         /// Добавить в базу массив сущностей.
         /// </summary>
         /// <param name="entities"> Массив сущностей. </param>
-        void AddRange( IEnumerable<T> entities );
-
-        /// <summary>
-        /// Добавить в базу массив сущностей.
-        /// </summary>
-        /// <param name="entities"> Массив сущностей. </param>
-        Task AddRangeAsync( IEnumerable<T> entities );
-
-        /// <summary>
-        /// Сохранить изменения.
-        /// </summary>
-        void SaveChanges();
+        Task AddRangeAsync( IEnumerable<T> entities, CancellationToken cancellationToken = default );
 
         /// <summary>
         /// Сохранить изменения.

@@ -22,7 +22,7 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// <param name="id"> Id сущности. </param>
         /// <param name="cancellationToken"> Токен отмены </param>
         /// <returns> Найденную сущность или <see langword="null" />.</returns>
-        public override async Task<PromoCode> GetAsync( Guid id, CancellationToken cancellationToken )
+        public override async Task<PromoCode> GetAsync( Guid id, CancellationToken cancellationToken = default )
         {
             var query = _entitySet.AsQueryable();
             query = query
@@ -37,7 +37,7 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// </summary>
         /// <param name="cancellationToken"> Токен отмены </param>
         /// <returns> Список сущностей. </returns>
-        public override async Task<List<PromoCode>> GetAllAsync( CancellationToken cancellationToken )
+        public override async Task<List<PromoCode>> GetAllAsync( CancellationToken cancellationToken = default )
         {
             var query = _entitySet.AsQueryable();
             query = query

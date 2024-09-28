@@ -22,7 +22,7 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// <param name="id"> Id сущности. </param>
         /// <param name="cancellationToken"> Токен отмены. </param>
         /// <returns> Найденную сущность или <see langword="null" />.</returns>
-        public override async Task<Customer> GetAsync( Guid id, CancellationToken cancellationToken )
+        public override async Task<Customer> GetAsync( Guid id, CancellationToken cancellationToken = default )
         {
             var query = _entitySet.AsQueryable();
             query = query
@@ -36,20 +36,15 @@ namespace PromoCodeFactory.DataAccess.Repositories
         /// <summary>
         /// Запросить все сущности в базе с указанным предпочтением.
         /// </summary>
-        /// <param name="preference"> Предпочтение. </param>
+        /// <param name="preferenceId"> Id предпочтения. </param>
         /// <param name="cancellationToken"> Токен отмены. </param>
         /// <returns> Список сущностей. </returns>
-        public async Task<List<Customer>> GetAllByPreferenceAsync( string preference, CancellationToken cancellationToken )
+        public async Task<List<Customer>> GetAllWithGivenPreferenceAsync( Guid preferenceId, CancellationToken cancellationToken = default )
         {
-            //var query =  _entitySet.Join( Context.Set<CustomerPreference>(), a => a.Id, b => b.CustomerId, ( a, b ) => new { A = a, B = b } )
-            //                       .Join( Context.Set<Preference>(), ab => ab.B.PreferenceId, c => c.Id, ( ab, c ) => new { A = ab.A, B = ab.B, C = c } )
-            //                       .Where( customerWithPreference => customerWithPreference.C.Name == preference )
-            //                       .Select( customerWithPreference => customerWithPreference.A ).AsQueryable();
-
             var query = _entitySet
                 .Include( c => c.CustomerPreferences )
                 .ThenInclude( cp => cp.Preference )
-                .Where( c => c.CustomerPreferences.Any( cp => cp.Preference.Name == preference ) )
+                .Where( c => c.CustomerPreferences.Any( cp => cp.Preference.Id == preferenceId ) )
                 .AsQueryable();
 
             return await query.ToListAsync( cancellationToken );

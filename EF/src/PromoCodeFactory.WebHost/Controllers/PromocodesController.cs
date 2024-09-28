@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using PromoCodeFactory.Core.Abstractions.Repositories;
 using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 using PromoCodeFactory.WebHost.Models;
@@ -17,15 +18,15 @@ namespace PromoCodeFactory.WebHost.Controllers
     public class PromocodesController
         : ControllerBase
     {
-        private readonly IPromocodeRepository _promocodeRepository;
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IPreferenceRepository _preferenceRepository;
+        private readonly IConfiguration _configuration;
 
-        public PromocodesController( IPromocodeRepository promocodeRepository, ICustomerRepository customerRepository, IPreferenceRepository preferenceRepository )
+        private readonly IUnitOfWork _unitOfWork;
+
+        public PromocodesController( IConfiguration configuration, IUnitOfWork unitOfWork )
         {
-            _promocodeRepository = promocodeRepository;
-            _customerRepository = customerRepository;
-            _preferenceRepository = preferenceRepository;
+            _configuration = configuration;
+
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpGet]
         public async Task<ActionResult<List<PromoCodeResponse>>> GetPromocodesAsync()
         {
-            var promocodes = await _promocodeRepository.GetAllAsync( Request.HttpContext.RequestAborted );
+            var promocodes = await _unitOfWork.PromocodeRepository.GetAllAsync( Request.HttpContext.RequestAborted );
             var response = promocodes.Select( x =>
                 new PromoCodeResponse()
                 {
@@ -62,7 +63,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpPost]
         public async Task<IActionResult> GivePromoCodesToCustomersWithPreferenceAsync(GivePromoCodeRequest request)
         {
-            var preference = await _preferenceRepository.GetByNameAsync( request.Preference, Request.HttpContext.RequestAborted );
+            var preference = await _unitOfWork.PreferenceRepository.GetByNameAsync( request.Preference, Request.HttpContext.RequestAborted );
             if ( preference is null )
             {
                 return NotFound("Заданное предпочтение не было найдено.");
@@ -74,23 +75,23 @@ namespace PromoCodeFactory.WebHost.Controllers
                 Code = request.PromoCode,
                 ServiceInfo = request.ServiceInfo,
                 BeginDate = DateTime.Now,
-                EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
+                EndDate = DateTime.Now + TimeSpan.FromDays( _configuration.GetValue<int>( "defaultPromocodeDuration" ) ),
                 PartnerName = request.PartnerName,
                 PreferenceId = preference.Id
             };
 
-            var createdPromoCode = await _promocodeRepository.AddAsync( newPromoCode );
+            var createdPromoCode = await _unitOfWork.PromocodeRepository.AddAsync( newPromoCode, Request.HttpContext.RequestAborted );
 
             // Выдача промокода клиентам с указанным предпочтением
-            var customersWithPreference = await _customerRepository.GetAllByPreferenceAsync( request.Preference, Request.HttpContext.RequestAborted );
+            var customersWithPreference = await _unitOfWork.CustomerRepository.GetAllWithGivenPreferenceAsync( preference.Id, Request.HttpContext.RequestAborted );
             foreach ( var customerWithPreference in customersWithPreference )
             {
                 customerWithPreference.PromoCodes.Add( createdPromoCode );
-                _customerRepository.Update( customerWithPreference );
+                await _unitOfWork.CustomerRepository.UpdateAsync( customerWithPreference, Request.HttpContext.RequestAborted );
             }
 
             // Сохранение изменений
-            await _promocodeRepository.SaveChangesAsync( Request.HttpContext.RequestAborted );
+            await _unitOfWork.SaveChangesAsync( Request.HttpContext.RequestAborted );
 
             return Created();
         }

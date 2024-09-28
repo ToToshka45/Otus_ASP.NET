@@ -17,15 +17,11 @@ namespace PromoCodeFactory.WebHost.Controllers
     public class CustomersController
         : ControllerBase
     {
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IPreferenceRepository _preferenceRepository;
-        private readonly IPromocodeRepository _promocodeRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CustomersController( ICustomerRepository customerRepository, IPreferenceRepository preferenceRepository, IPromocodeRepository promocodeRepository )
+        public CustomersController( IUnitOfWork unitOfWork )
         {
-            _customerRepository = customerRepository;
-            _preferenceRepository = preferenceRepository;
-            _promocodeRepository = promocodeRepository;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -35,7 +31,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpGet]
         public async Task<ActionResult<List<CustomerShortResponse>>> GetCustomersAsync()
         {
-            var customers = await _customerRepository.GetAllAsync( Request.HttpContext.RequestAborted );
+            var customers = await _unitOfWork.CustomerRepository.GetAllAsync( Request.HttpContext.RequestAborted );
             var response = customers.Select( x =>
                 new CustomerShortResponse()
                 {
@@ -56,7 +52,20 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CustomerResponse>> GetCustomerAsync(Guid id)
         {
-            var entityItem = await _customerRepository.GetAsync( id, Request.HttpContext.RequestAborted );
+            var entityItem = await _unitOfWork.CustomerRepository.GetAsync( id, Request.HttpContext.RequestAborted );
+
+            var preferenceResponses = new List<PreferenceResponse>();
+            var preferences = await _unitOfWork.PreferenceRepository.GetAsyncByIds( entityItem.CustomerPreferences.Select( cp => cp.PreferenceId ), Request.HttpContext.RequestAborted );
+            foreach ( var preference in preferences )
+            {
+                var preferenceResponse = new PreferenceResponse()
+                {
+                    Id = preference.Id,
+                    Name = preference.Name,
+                };
+
+                preferenceResponses.Add( preferenceResponse );
+            }
 
             var response = new CustomerResponse()
             {
@@ -75,16 +84,7 @@ namespace PromoCodeFactory.WebHost.Controllers
                         PartnerName = pc.PartnerName,
                     };
                 } ).ToList(),
-                Preferences = entityItem.CustomerPreferences.Select( p =>
-                {
-                    var preference = _preferenceRepository.Get( p.PreferenceId );
-
-                    return new PreferenceResponse()
-                    {
-                        Id = preference.Id,
-                        Name = preference.Name,
-                    };
-                } ).ToList(),
+                Preferences = preferenceResponses,
             };
 
             return Ok( response );
@@ -98,25 +98,29 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCustomerAsync( CreateOrEditCustomerRequest request )
         {
+            var customerPreferences = new List<CustomerPreference>();
+            var preferences = await _unitOfWork.PreferenceRepository.GetAsyncByIds( request.PreferenceIds, Request.HttpContext.RequestAborted );
+            foreach ( var preference in preferences )
+            {
+                var customerPreference = new CustomerPreference()
+                {
+                    PreferenceId = preference.Id,
+                    Preference = preference,
+                };
+
+                customerPreferences.Add( customerPreference );
+            }
+
             var newCustomer = new Customer()
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
-                CustomerPreferences = ( await Task.WhenAll( request.PreferenceIds.Select( async pId =>
-                {
-                    var preference = await _preferenceRepository.GetAsync( pId, Request.HttpContext.RequestAborted );
-
-                    return new CustomerPreference()
-                    {
-                        PreferenceId = pId,
-                        Preference = preference,
-                    };
-                } ) ) ).ToList(),
+                CustomerPreferences = customerPreferences,
             };
 
-            var createdCustomer = await _customerRepository.AddAsync( newCustomer );
-            await _customerRepository.SaveChangesAsync( Request.HttpContext.RequestAborted );
+            var createdCustomer = await _unitOfWork.CustomerRepository.AddAsync( newCustomer, Request.HttpContext.RequestAborted );
+            await _unitOfWork.SaveChangesAsync( Request.HttpContext.RequestAborted );
 
             return Created();
         }
@@ -130,24 +134,28 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> EditCustomersAsync(Guid id, CreateOrEditCustomerRequest request)
         {
-            var entityItem = await _customerRepository.GetAsync( id, Request.HttpContext.RequestAborted );
+            var entityItem = await _unitOfWork.CustomerRepository.GetAsync( id, Request.HttpContext.RequestAborted );
+
+            var customerPreferences = new List<CustomerPreference>();
+            var preferences = await _unitOfWork.PreferenceRepository.GetAsyncByIds( request.PreferenceIds, Request.HttpContext.RequestAborted );
+            foreach ( var preference in preferences )
+            {
+                var customerPreference = new CustomerPreference()
+                {
+                    PreferenceId = preference.Id,
+                    Preference = preference,
+                };
+
+                customerPreferences.Add( customerPreference );
+            }
 
             entityItem.FirstName = request.FirstName;
             entityItem.LastName = request.LastName;
             entityItem.Email = request.Email;
-            entityItem.CustomerPreferences = request.PreferenceIds.Select( pId =>
-            {
-                var preference = _preferenceRepository.Get( pId );
+            entityItem.CustomerPreferences = customerPreferences;
 
-                return new CustomerPreference()
-                {
-                    PreferenceId = pId,
-                    Preference = preference,
-                };
-            } ).ToList();
-
-            _customerRepository.Update( entityItem );
-            await _customerRepository.SaveChangesAsync( Request.HttpContext.RequestAborted );
+            await _unitOfWork.CustomerRepository.UpdateAsync( entityItem, Request.HttpContext.RequestAborted );
+            await _unitOfWork.SaveChangesAsync( Request.HttpContext.RequestAborted );
 
             return NoContent();
         }
@@ -160,11 +168,11 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteCustomer( Guid id )
         {
-            var wasDeleted = _customerRepository.Delete( id );
+            var wasDeleted = await _unitOfWork.CustomerRepository.DeleteAsync( id, Request.HttpContext.RequestAborted );
 
             if ( wasDeleted )
             {
-                await _customerRepository.SaveChangesAsync( Request.HttpContext.RequestAborted );
+                await _unitOfWork.SaveChangesAsync( Request.HttpContext.RequestAborted );
             }
 
             return Ok( wasDeleted );
