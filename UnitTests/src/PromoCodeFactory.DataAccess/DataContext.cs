@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PromoCodeFactory.Core.Domain.Administration;
 using PromoCodeFactory.Core.Domain.PromoCodeManagement;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace PromoCodeFactory.DataAccess
 {
@@ -42,6 +44,18 @@ namespace PromoCodeFactory.DataAccess
                 .HasOne(bc => bc.Preference)
                 .WithMany()
                 .HasForeignKey(bc => bc.PreferenceId); 
+        }
+
+        public override async Task<int> SaveChangesAsync( CancellationToken cancellationToken = new CancellationToken() )
+        {
+            var result = await base.SaveChangesAsync( cancellationToken );
+            return result;
+        }
+
+        public override int SaveChanges()
+        {
+            var result = base.SaveChanges();
+            return result;
         }
     }
 }
