@@ -1,17 +1,18 @@
-﻿using AutoFixture.AutoMoq;
-using AutoFixture;
+﻿using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PromoCodeFactory.Core.Abstractions.Repositories;
 using PromoCodeFactory.Core.Domain.PromoCodeManagement;
+using PromoCodeFactory.DataAccess;
+using PromoCodeFactory.UnitTests.WebHost.DefaultDataCreateHelpers;
 using PromoCodeFactory.WebHost.Controllers;
 using PromoCodeFactory.WebHost.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xunit;
-using PromoCodeFactory.UnitTests.WebHost.DefaultDataCreateHelpers;
 
 namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
 {
@@ -19,10 +20,12 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
     {
         private readonly PartnersController _partnersController;
         private readonly Mock<IRepository<Partner>> _partnersRepositoryMock;
+        private readonly Mock<DataContext> _dataContextMock;
 
         public SetPartnerPromoCodeLimitAsyncTests()
         {
             var fixture = new Fixture().Customize( new AutoMoqCustomization() );
+            _dataContextMock = fixture.Freeze<Mock<DataContext>>();
             _partnersRepositoryMock = fixture.Freeze<Mock<IRepository<Partner>>>();
             _partnersController = fixture.Build<PartnersController>().OmitAutoProperties().Create();
         }
@@ -226,6 +229,47 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
             // Assert
             result.Should().BeAssignableTo<CreatedAtActionResult>();
             partner.NumberIssuedPromoCodes.Should().Be( numberIssuedPromoCodes );
+        }
+
+        [Fact]
+        public async void SetPartnerPromoCodeLimitAsync_PartnerLimitIsSet_LimitSavedToDB()
+        {
+            // Arrange
+            var partnerId = Guid.Parse( "FF87F725-1001-4873-ABC0-8FFC3413E11C" );
+            var request = new SetPartnerPromoCodeLimitRequest()
+            {
+                EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
+                Limit = 10,
+            };
+
+            Partner partner = DefaultPartnerCreatorHelper.CreateBasePartner();
+
+            _partnersRepositoryMock
+                .Setup( repo => repo.GetByIdAsync( partnerId ) )
+                .ReturnsAsync( partner );
+
+            _partnersRepositoryMock
+                .Setup( repo => repo.UpdateAsync( partner ) );
+
+            _dataContextMock
+                .Setup( repo => repo.SaveChangesAsync( CancellationToken.None ) );
+
+            // Act
+            var result = await _partnersController.SetPartnerPromoCodeLimitAsync( partnerId, request );
+
+            // Assert
+            result.Should().BeAssignableTo<CreatedAtActionResult>();
+
+            //var createdAtActionResult = result as CreatedAtActionResult;
+            //var createdLimitId = (Guid) createdAtActionResult.RouteValues[ "limitId" ];
+            //var returnedPartnerId = (Guid) createdAtActionResult.RouteValues[ "id" ];
+
+            //returnedPartnerId.Should().Be( partnerId );
+            //createdLimitId.Should().NotBeEmpty();
+
+            _partnersRepositoryMock.Verify( m => m.GetByIdAsync( It.IsAny<Guid>() ), Times.Exactly( 1 ) );
+            _partnersRepositoryMock.Verify( m => m.UpdateAsync( It.IsAny<Partner>() ), Times.Exactly( 1 ) );
+            _dataContextMock.Verify( m => m.SaveChangesAsync( It.IsAny<CancellationToken>() ), Times.Exactly( 1 ) );
         }
 
         public void Dispose()
