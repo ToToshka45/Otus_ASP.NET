@@ -1,24 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Castle.Core.Configuration;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using Pcf.ReceivingFromPartner.Core.Abstractions.Gateways;
-using Pcf.ReceivingFromPartner.Core.Abstractions.Repositories;
-using Pcf.ReceivingFromPartner.DataAccess;
-using Pcf.ReceivingFromPartner.DataAccess.Data;
-using Pcf.ReceivingFromPartner.DataAccess.Repositories;
-using Pcf.ReceivingFromPartner.Integration;
+using Pcf.Preferences.Core.Abstractions.Repositories;
+using Pcf.Preferences.DataAccess;
+using Pcf.Preferences.DataAccess.Data;
+using Pcf.Preferences.DataAccess.Repositories;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
-namespace Pcf.ReceivingFromPartner.WebHost
+namespace Pcf.Preferences.WebHost
 {
     public class Startup
     {
@@ -36,35 +23,19 @@ namespace Pcf.ReceivingFromPartner.WebHost
             services.AddControllers().AddMvcOptions(x=> 
                 x.SuppressAsyncSuffixInActionNames = false);
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-            services.AddScoped<INotificationGateway, NotificationGateway>();
             services.AddScoped<IDbInitializer, EfDbInitializer>();
-
-            services.AddHttpClient<IGivingPromoCodeToCustomerGateway,GivingPromoCodeToCustomerGateway>(c =>
-            {
-                c.BaseAddress = new Uri(Configuration["IntegrationSettings:GivingToCustomerApiUrl"]);
-            });
-            
-            services.AddHttpClient<IAdministrationGateway,AdministrationGateway>(c =>
-            {
-                c.BaseAddress = new Uri(Configuration["IntegrationSettings:AdministrationApiUrl"]);
-            });
-            
-            services.AddHttpClient<IPreferencesGateway, PreferencesGateway>(c =>
-            {
-                c.BaseAddress = new Uri(Configuration[ "IntegrationSettings:PreferencesApiUrl" ] );
-            });
             
             services.AddDbContext<DataContext>(x =>
             {
-                //x.UseSqlite("Filename=PromocodeFactoryReceivingFromPartnerDb.sqlite");
-                x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryReceivingFromPartnerDb"));
+                //x.UseSqlite("Filename=PromocodeFactoryPreferencesDb.sqlite");
+                x.UseNpgsql(Configuration.GetConnectionString( "PromocodeFactoryPreferencesDb" ) );
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
 
             services.AddOpenApiDocument(options =>
             {
-                options.Title = "PromoCode Factory Receiving From Partner API Doc";
+                options.Title = "PromoCode Factory Preferences API Doc";
                 options.Version = "1.0";
             });
         }

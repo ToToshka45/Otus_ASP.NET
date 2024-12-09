@@ -1,0 +1,17 @@
+﻿
+
+# Базы данных
+docker-compose up promocode-factory-administration-db promocode-factory-receiving-from-partner-db promocode-factory-giving-to-customer-db promocode-factory-preferences-db
+
+# Сервисы
+docker-compose up promocode-factory-administration-api promocode-factory-receiving-from-partner-api promocode-factory-giving-to-customer-api promocode-factory-preferences-api
+
+
+
+
+
+
+
+
+
+
