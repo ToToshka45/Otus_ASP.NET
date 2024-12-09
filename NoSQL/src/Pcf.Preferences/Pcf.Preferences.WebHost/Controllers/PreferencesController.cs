@@ -2,6 +2,7 @@
 using Pcf.Preferences.Core.Abstractions.Repositories;
 using Pcf.Preferences.Core.Domain;
 using Pcf.Preferences.WebHost.Models;
+using Pcf.ReceivingFromPartner.WebHost.Models;
 
 namespace Pcf.Preferences.WebHost.Controllers
 {
@@ -55,6 +56,25 @@ namespace Pcf.Preferences.WebHost.Controllers
             }).ToList();
 
             return Ok(response);
+        }
+
+        /// <summary>
+        /// Создать промокод от партнера 
+        /// </summary>
+        /// <param name="request">Данные запроса/example></param>
+        /// <returns></returns>
+        [HttpPost( "range" )]
+        public async Task<IActionResult> GetPreferencesRangeAsync( PreferencesRangeRequest request )
+        {
+            var preferences = await _preferencesRepository.GetRangeByIdsAsync( request.PreferenceIds );
+
+            var response = preferences.Select( x => new PreferenceResponse()
+            {
+                Id = x.Id,
+                Name = x.Name
+            } ).ToList();
+
+            return Ok( response );
         }
     }
 }

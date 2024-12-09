@@ -1,15 +1,13 @@
-﻿using Pcf.ReceivingFromPartner.Core.Abstractions.Gateways;
-using Pcf.ReceivingFromPartner.Core.Domain;
-using Pcf.ReceivingFromPartner.Integration.Dto;
+﻿using Pcf.GivingToCustomer.Core.Abstractions.Gateways;
+using Pcf.GivingToCustomer.Core.Domain;
+using Pcf.GivingToCustomer.Integration.Dto;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Pcf.ReceivingFromPartner.Integration
+namespace Pcf.GivingToCustomer.Integration
 {
     public class PreferencesGateway : IPreferencesGateway
     {

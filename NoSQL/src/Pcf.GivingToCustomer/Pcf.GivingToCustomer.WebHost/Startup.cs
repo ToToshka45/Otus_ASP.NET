@@ -38,6 +38,12 @@ namespace Pcf.GivingToCustomer.WebHost
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<INotificationGateway, NotificationGateway>();
             services.AddScoped<IDbInitializer, EfDbInitializer>();
+
+            services.AddHttpClient<IPreferencesGateway, PreferencesGateway>( c =>
+            {
+                c.BaseAddress = new Uri( Configuration[ "IntegrationSettings:PreferencesApiUrl" ] );
+            } );
+
             services.AddDbContext<DataContext>(x =>
             {
                 //x.UseSqlite("Filename=PromocodeFactoryGivingToCustomerDb.sqlite");
