@@ -66,6 +66,15 @@ services:
     depends_on: 
       - promocode-factory-giving-to-customer-db
 
+  #Preferences Redis
+  promocode-factory-preferences-redis:
+    image: redis:latest
+    container_name: promocode-factory-preferences-redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
   #Preferences Db
   promocode-factory-preferences-db:
     image: "postgres:latest"
@@ -86,3 +95,4 @@ services:
       - "ConnectionStrings:PromocodeFactoryPreferencesDb=Host=promocode-factory-preferences-db;Database=promocode_factory_preferences_db;Username=postgres;Password=docker"          
     depends_on: 
       - promocode-factory-preferences-db
+      - promocode-factory-preferences-redis

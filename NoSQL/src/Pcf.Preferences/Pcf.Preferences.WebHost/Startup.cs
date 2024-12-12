@@ -3,6 +3,7 @@ using Pcf.Preferences.Core.Abstractions.Repositories;
 using Pcf.Preferences.DataAccess;
 using Pcf.Preferences.DataAccess.Data;
 using Pcf.Preferences.DataAccess.Repositories;
+using Pcf.Preferences.WebHost.Services;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Pcf.Preferences.WebHost
@@ -32,6 +33,15 @@ namespace Pcf.Preferences.WebHost
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
+
+            // distributed cache
+            services.AddDistributedMemoryCache();
+            services.AddStackExchangeRedisCache( options =>
+            {
+                options.Configuration = Configuration.GetConnectionString( "Redis" );
+            } );
+
+            services.AddScoped<ICacheService, CacheService>();
 
             services.AddOpenApiDocument(options =>
             {

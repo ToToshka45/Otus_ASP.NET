@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.Extensions.Caching.Distributed;
 using Pcf.Preferences.Core.Abstractions.Repositories;
 using Pcf.Preferences.Core.Domain;
 using Pcf.Preferences.WebHost.Models;
+using Pcf.Preferences.WebHost.Services;
 using Pcf.ReceivingFromPartner.WebHost.Models;
+using System.Text.Json;
 
 namespace Pcf.Preferences.WebHost.Controllers
 {
@@ -15,10 +19,14 @@ namespace Pcf.Preferences.WebHost.Controllers
         : ControllerBase
     {
         private readonly IRepository<Preference> _preferencesRepository;
+        private readonly IDistributedCache _distributedCache;
+        private readonly ICacheService _cacheService;
 
-        public PreferencesController(IRepository<Preference> preferencesRepository)
+        public PreferencesController(IRepository<Preference> preferencesRepository, IDistributedCache distributedCache, ICacheService cacheService )
         {
             _preferencesRepository = preferencesRepository;
+            _distributedCache = distributedCache;
+            _cacheService = cacheService;
         }
 
         /// <summary>
@@ -29,7 +37,15 @@ namespace Pcf.Preferences.WebHost.Controllers
         [HttpGet( "{id:guid}" )]
         public async Task<ActionResult<PreferenceResponse>> GetPreferenceAsync( Guid id )
         {
-            var preference = await _preferencesRepository.GetByIdAsync( id );
+            string nowKey = GetRedisKeyForPreference( id );
+
+            var preference = await _cacheService.GetAsync<Preference>( nowKey );
+            if ( preference is null )
+            {
+                preference = await _preferencesRepository.GetByIdAsync( id );
+
+                await _cacheService.SetAsync<Preference>( nowKey, preference );
+            }
 
             var response = new PreferenceResponse()
             {
@@ -66,7 +82,26 @@ namespace Pcf.Preferences.WebHost.Controllers
         [HttpPost( "range" )]
         public async Task<IActionResult> GetPreferencesRangeAsync( PreferencesRangeRequest request )
         {
-            var preferences = await _preferencesRepository.GetRangeByIdsAsync( request.PreferenceIds );
+            var preferences = new List<Preference>();
+            var preferencesToRequest = new List<Guid>();
+
+            foreach ( var preferenceId in request.PreferenceIds )
+            {
+                string nowKey = GetRedisKeyForPreference( preferenceId );
+
+                var preference = await _cacheService.GetAsync<Preference>( nowKey );
+                if ( preference is null )
+                {
+                    preferencesToRequest.Add( preferenceId );
+                }
+                else
+                {
+                    preferences.Add( preference );
+                }
+            }
+
+            var requestedPreferences = await _preferencesRepository.GetRangeByIdsAsync( preferencesToRequest );
+            preferences.AddRange( requestedPreferences );
 
             var response = preferences.Select( x => new PreferenceResponse()
             {
@@ -74,7 +109,18 @@ namespace Pcf.Preferences.WebHost.Controllers
                 Name = x.Name
             } ).ToList();
 
+            foreach ( var requestedPreference in requestedPreferences )
+            {
+                string nowKey = GetRedisKeyForPreference( requestedPreference.Id );
+                await _cacheService.SetAsync<Preference>( nowKey, requestedPreference );
+            }
+
             return Ok( response );
+        }
+
+        private string GetRedisKeyForPreference(Guid preferenceId)
+        {
+            return $"Preferences:{preferenceId}";
         }
     }
 }

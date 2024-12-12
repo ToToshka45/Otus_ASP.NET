@@ -322,7 +322,6 @@ using Microsoft.AspNetCore.Mvc;
             //Получаем предпочтение по имени
             //var preference = await _preferencesRepository.GetByIdAsync( request.PreferenceId );
             var preference = await _preferencesGateway.GetPreferenceById(request.PreferenceId);
-            var preferences = await _preferencesGateway.GetPreferencesRangeByIds( new List<Guid> { request.PreferenceId } );
 
             if (preference == null)
             {

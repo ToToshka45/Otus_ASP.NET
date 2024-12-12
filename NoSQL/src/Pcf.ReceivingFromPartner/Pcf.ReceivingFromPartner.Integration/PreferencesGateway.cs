@@ -1,12 +1,9 @@
 ﻿using Pcf.ReceivingFromPartner.Core.Abstractions.Gateways;
 using Pcf.ReceivingFromPartner.Core.Domain;
-using Pcf.ReceivingFromPartner.Integration.Dto;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Pcf.ReceivingFromPartner.Integration
@@ -30,19 +27,9 @@ namespace Pcf.ReceivingFromPartner.Integration
             return preference;
         }
 
-        public async Task<List<Preference>> GetPreferencesRangeByIds( List<Guid> preferenceIds )
+        public Task<List<Preference>> GetPreferencesRangeByIds( List<Guid> preferenceIds )
         {
-            var dto = new GetPreferencesRangeDto()
-            {
-                PreferenceIds = preferenceIds,
-            };
-
-            var response = await _httpClient.PostAsJsonAsync( "api/v1/preferences/range", dto );
-
-            response.EnsureSuccessStatusCode();
-
-            var preferences = await response.Content.ReadFromJsonAsync<List<Preference>>();
-            return preferences;
+            throw new NotImplementedException();
         }
     }
 }
