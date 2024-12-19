@@ -20,22 +20,25 @@ using Microsoft.AspNetCore.Mvc;
         : ControllerBase
     {
         private readonly IRepository<Partner> _partnersRepository;
-        private readonly IRepository<Preference> _preferencesRepository;
+        //private readonly IRepository<Preference> _preferencesRepository;
         private readonly INotificationGateway _notificationGateway;
         private readonly IGivingPromoCodeToCustomerGateway _givingPromoCodeToCustomerGateway;
         private readonly IAdministrationGateway _administrationGateway;
+        private readonly IPreferencesGateway _preferencesGateway;
 
         public PartnersController(IRepository<Partner> partnersRepository,
-            IRepository<Preference> preferencesRepository, 
+            //IRepository<Preference> preferencesRepository, 
             INotificationGateway notificationGateway,
             IGivingPromoCodeToCustomerGateway givingPromoCodeToCustomerGateway,
-            IAdministrationGateway administrationGateway)
+            IAdministrationGateway administrationGateway,
+            IPreferencesGateway preferencesGateway )
         {
             _partnersRepository = partnersRepository;
-            _preferencesRepository = preferencesRepository;
+            //_preferencesRepository = preferencesRepository;
             _notificationGateway = notificationGateway;
             _givingPromoCodeToCustomerGateway = givingPromoCodeToCustomerGateway;
             _administrationGateway = administrationGateway;
+            _preferencesGateway = preferencesGateway;
         }
 
         /// <summary>
@@ -317,7 +320,8 @@ using Microsoft.AspNetCore.Mvc;
             }
 
             //Получаем предпочтение по имени
-            var preference = await _preferencesRepository.GetByIdAsync(request.PreferenceId);
+            //var preference = await _preferencesRepository.GetByIdAsync( request.PreferenceId );
+            var preference = await _preferencesGateway.GetPreferenceById(request.PreferenceId);
 
             if (preference == null)
             {
