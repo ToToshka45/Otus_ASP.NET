@@ -16,6 +16,7 @@ using PromoCodeFactory.DataAccess;
 using PromoCodeFactory.DataAccess.Data;
 using PromoCodeFactory.DataAccess.Repositories;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 
 namespace PromoCodeFactory.WebHost
 {
@@ -34,8 +35,9 @@ namespace PromoCodeFactory.WebHost
         {
             services.AddControllers().AddMvcOptions(x=> 
                 x.SuppressAsyncSuffixInActionNames = false);
-            services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            services.AddScoped( typeof( IRepository<Partner> ), typeof( EfRepository<Partner> ) );
             services.AddScoped<IDbInitializer, EfDbInitializer>();
+
             services.AddDbContext<DataContext>(x =>
             {
                 x.UseSqlite("Filename=PromoCodeFactoryDb.sqlite");
@@ -44,11 +46,53 @@ namespace PromoCodeFactory.WebHost
                 x.UseLazyLoadingProxies();
             });
 
+            services.AddTransient<DbContext, DataContext>();
+
             services.AddOpenApiDocument(options =>
             {
                 options.Title = "PromoCode Factory API Doc";
                 options.Version = "1.0";
             });
+        }
+
+        public IServiceProvider GetServiceProvider( IServiceCollection services )
+        {
+            var serviceProvider = services
+                .BuildServiceProvider();
+
+            //using ( var scope = services.CreateScope() )
+            //{
+                var db = serviceProvider.GetRequiredService<DataContext>();
+                db.Database.EnsureDeleted();
+                db.Database.Migrate();
+                Seed( db );
+            //}
+
+            return serviceProvider;
+        }
+
+        private static void Seed( DataContext dataContext )
+        {
+            var partner = new Partner()
+            {
+                Id = Guid.Parse( "0B1FB4BF-4974-4EED-A707-2736D68FBAB2" ),
+                Name = "GameBy",
+                IsActive = true,
+                PartnerLimits = new List<PartnerPromoCodeLimit>()
+                {
+                    new PartnerPromoCodeLimit()
+                    {
+                        Id = Guid.Parse("E17C1E81-ED9C-4EEF-9857-FA29963813D7"),
+                        CreateDate = DateTime.Now - TimeSpan.FromDays( 3 ),
+                        EndDate = DateTime.Now + TimeSpan.FromDays( 7 ),
+                        Limit = 10
+                    }
+                }
+            };
+
+            dataContext.Add<Partner>( partner );
+
+            dataContext.SaveChanges();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
