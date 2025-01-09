@@ -43,7 +43,7 @@ namespace Pcf.Administration.WebHost
 
             services.AddMassTransit( busConfigurator =>
             {
-                //busConfigurator.SetKebabCaseEndpointNameFormatter();
+                busConfigurator.SetKebabCaseEndpointNameFormatter();
 
                 busConfigurator.AddConsumer<NotifyAdminConsumer>();
 
@@ -57,8 +57,6 @@ namespace Pcf.Administration.WebHost
                 } );
             } );
             //services.AddHostedService<MasstransitService>();
-
-            //services.AddScoped<NotifyAdminConsumer>();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -123,7 +121,7 @@ namespace Pcf.Administration.WebHost
         /// <param name="configurator"></param>
         private static void RegisterEndPoints( IRabbitMqBusFactoryConfigurator configurator )
         {
-            configurator.ReceiveEndpoint( $"masstransit_notify_admin_queue_1", e =>
+            configurator.ReceiveEndpoint( "notify-admin", e =>
             {
                 //e.Consumer<NotifyAdminConsumer>();
                 e.UseMessageRetry( r =>

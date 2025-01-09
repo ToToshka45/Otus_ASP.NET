@@ -341,21 +341,15 @@ namespace Pcf.ReceivingFromPartner.WebHost.Controllers
             //await _givingPromoCodeToCustomerGateway.GivePromoCodeToCustomer(promoCode);
 
             var promoCodeEvent = new PromocodeEvent()
-            {
-                Content = "Hello World! " + promoCode.Code
+            { 
+                Code = promoCode.Code,
+                ServiceInfo = promoCode.ServiceInfo,
+                BeginDate = promoCode.BeginDate.ToShortDateString(),
+                EndDate = promoCode.EndDate.ToShortDateString(),
+                PartnerManagerId = promoCode.PartnerManagerId,
 
-                //promocodeDto.PartnerId = promoCode.PartnerId;
-                //promocodeDto.Partner = promoCode.Partner;
-                //promocodeDto.Code = promoCode.Code;
-                //promocodeDto.ServiceInfo = promoCode.ServiceInfo;
-
-                //promocodeDto.BeginDate = promoCode.BeginDate;
-                //promocodeDto.EndDate = promoCode.EndDate;
-
-                //promocodeDto.Preference = promoCode.Preference;
-                //promocodeDto.PreferenceId = promoCode.PreferenceId;
-
-                //promocodeDto.PartnerManagerId = promoCode.PartnerManagerId;
+                PartnerId = promoCode.PartnerId,
+                PreferenceId = promoCode.PreferenceId,
             };
 
             await _busControl.Publish( promoCodeEvent, CancellationToken.None );

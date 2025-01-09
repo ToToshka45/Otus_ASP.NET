@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Pcf.GivingToCustomer.Core.Domain;
 using Pcf.GivingToCustomer.WebHost.Models;
+using Pcf.RabbitMQ_Events;
 
 namespace Pcf.GivingToCustomer.WebHost.Mappers
 {
@@ -37,6 +38,39 @@ namespace Pcf.GivingToCustomer.WebHost.Mappers
                     PromoCodeId = promocode.Id,
                     PromoCode = promocode
                 });
+            };
+
+            return promocode;
+        }
+
+        public static PromoCode MapFromEvent( PromocodeEvent pEvent, Preference preference, IEnumerable<Customer> customers )
+        {
+
+            var promocode = new PromoCode();
+            promocode.Id = Guid.Empty;
+
+            promocode.PartnerId = pEvent.PartnerId;
+            promocode.Code = pEvent.Code;
+            promocode.ServiceInfo = pEvent.ServiceInfo;
+
+            promocode.BeginDate = DateTime.Parse( pEvent.BeginDate );
+            promocode.EndDate = DateTime.Parse( pEvent.EndDate );
+
+            promocode.Preference = preference;
+            promocode.PreferenceId = preference.Id;
+
+            promocode.Customers = new List<PromoCodeCustomer>();
+
+            foreach ( var item in customers )
+            {
+                promocode.Customers.Add( new PromoCodeCustomer()
+                {
+
+                    CustomerId = item.Id,
+                    Customer = item,
+                    PromoCodeId = promocode.Id,
+                    PromoCode = promocode
+                } );
             };
 
             return promocode;

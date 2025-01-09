@@ -46,7 +46,7 @@ namespace Pcf.GivingToCustomer.WebHost
 
             services.AddMassTransit( busConfigurator =>
             {
-                //busConfigurator.SetKebabCaseEndpointNameFormatter();
+                busConfigurator.SetKebabCaseEndpointNameFormatter();
 
                 busConfigurator.AddConsumer<PromocodeConsumer>();
 
@@ -60,8 +60,6 @@ namespace Pcf.GivingToCustomer.WebHost
                 } );
             } );
             //services.AddHostedService<MasstransitService>();
-
-            //services.AddScoped<PromocodeConsumer>();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -126,9 +124,9 @@ namespace Pcf.GivingToCustomer.WebHost
         /// <param name="configurator"></param>
         private static void RegisterEndPoints( IRabbitMqBusFactoryConfigurator configurator )
         {
-            configurator.ReceiveEndpoint( $"masstransit_promocode_queue_1", e =>
+            configurator.ReceiveEndpoint( "promocode", e =>
             {
-                e.Consumer<PromocodeConsumer>();
+                //e.Consumer<PromocodeConsumer>();
                 e.UseMessageRetry( r =>
                 {
                     r.Incremental( 3, TimeSpan.FromSeconds( 1 ), TimeSpan.FromSeconds( 1 ) );

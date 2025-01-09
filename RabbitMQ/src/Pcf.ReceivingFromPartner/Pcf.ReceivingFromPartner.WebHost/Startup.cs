@@ -46,14 +46,13 @@ namespace Pcf.ReceivingFromPartner.WebHost
                 c.BaseAddress = new Uri(Configuration["IntegrationSettings:AdministrationApiUrl"]);
             });
 
-            services.AddMassTransit( busConfigurator => {
-                //busConfigurator.SetKebabCaseEndpointNameFormatter();
+            services.AddMassTransit( busConfigurator =>
+            {
+                busConfigurator.SetKebabCaseEndpointNameFormatter();
 
                 busConfigurator.UsingRabbitMq( ( context, configurator ) =>
                 {
                     ConfigureRmq( configurator, Configuration );
-
-                    //configurator.ConfigureEndpoints( context );
 
                     configurator.ConfigureEndpoints( context );
                 } );
