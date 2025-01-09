@@ -1,34 +1,24 @@
-﻿using System.Threading.Tasks;
-using System;
+﻿using MassTransit;
+using Pcf.Administration.Core.Abstractions.Services;
 using Pcf.RabbitMQ_Events;
-using MassTransit;
-using Pcf.Administration.Core.Domain.Administration;
-using Pcf.Administration.Core.Abstractions.Repositories;
+using System.Threading.Tasks;
 
 namespace Pcf.Administration.WebHost.Consumers
 {
     public sealed class NotifyAdminConsumer : IConsumer<NotifyAdminAboutPartnerManagerPromoCodeEvent>
     {
-        private readonly IRepository<Employee> _employeeRepository;
+        private readonly IEmployeeService _employeeService;
 
-        public NotifyAdminConsumer( IRepository<Employee> employeeRepository )
+        public NotifyAdminConsumer( IEmployeeService employeeService )
         {
-            _employeeRepository = employeeRepository;
+            _employeeService = employeeService;
         }
 
         public async Task Consume( ConsumeContext<NotifyAdminAboutPartnerManagerPromoCodeEvent> context )
         {
             var employeeId = context.Message.PartnerManagerId;
-            var employee = await _employeeRepository.GetByIdAsync( employeeId );
 
-            if ( employee == null )
-            {
-                return;
-            }
-
-            employee.AppliedPromocodesCount++;
-
-            await _employeeRepository.UpdateAsync( employee );
+            var retCode = await _employeeService.UpdateAppliedPromocodesAsync( employeeId );
         }
     }
 }

@@ -13,6 +13,8 @@ using System;
 using MassTransit;
 using Pcf.Administration.WebHost.Settings;
 using Pcf.Administration.WebHost.Consumers;
+using Pcf.Administration.Core.Abstractions.Services;
+using Pcf.Administration.Core.Services;
 
 namespace Pcf.Administration.WebHost
 {
@@ -40,6 +42,8 @@ namespace Pcf.Administration.WebHost
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
+
+            services.AddScoped( typeof( IEmployeeService ), typeof( EmployeeService ) );
 
             services.AddMassTransit( busConfigurator =>
             {

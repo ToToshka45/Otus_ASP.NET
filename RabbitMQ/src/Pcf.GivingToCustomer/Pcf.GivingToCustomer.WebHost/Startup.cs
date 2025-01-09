@@ -15,6 +15,8 @@ using Pcf.GivingToCustomer.Integration;
 using MassTransit;
 using Pcf.GivingToCustomer.WebHost.Consumers;
 using Pcf.GivingToCustomer.WebHost.Settings;
+using Pcf.GivingToCustomer.Core.Abstractions.Services;
+using Pcf.GivingToCustomer.Core.Services;
 
 namespace Pcf.GivingToCustomer.WebHost
 {
@@ -42,7 +44,9 @@ namespace Pcf.GivingToCustomer.WebHost
                 x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryGivingToCustomerDb"));
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
-            });
+            }); 
+
+            services.AddScoped<IPromocodesService, PromocodesService>();
 
             services.AddMassTransit( busConfigurator =>
             {
