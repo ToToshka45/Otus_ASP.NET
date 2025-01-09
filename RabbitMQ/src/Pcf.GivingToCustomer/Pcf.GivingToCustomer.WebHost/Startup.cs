@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +12,9 @@ using Pcf.GivingToCustomer.DataAccess.Data;
 using Pcf.GivingToCustomer.DataAccess;
 using Pcf.GivingToCustomer.DataAccess.Repositories;
 using Pcf.GivingToCustomer.Integration;
+using MassTransit;
+using Pcf.GivingToCustomer.WebHost.Consumers;
+using Pcf.GivingToCustomer.WebHost.Settings;
 
 namespace Pcf.GivingToCustomer.WebHost
 {
@@ -40,6 +43,25 @@ namespace Pcf.GivingToCustomer.WebHost
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
+
+            services.AddMassTransit( busConfigurator =>
+            {
+                //busConfigurator.SetKebabCaseEndpointNameFormatter();
+
+                busConfigurator.AddConsumer<PromocodeConsumer>();
+
+                busConfigurator.UsingRabbitMq( ( context, configurator ) =>
+                {
+                    ConfigureRmq( configurator, Configuration );
+
+                    //RegisterEndPoints( configurator );
+
+                    configurator.ConfigureEndpoints( context );
+                } );
+            } );
+            //services.AddHostedService<MasstransitService>();
+
+            //services.AddScoped<PromocodeConsumer>();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -78,6 +100,42 @@ namespace Pcf.GivingToCustomer.WebHost
             });
 
             dbInitializer.InitializeDb();
+        }
+
+        /// <summary>
+        /// Конфигурирование RMQ.
+        /// </summary>
+        /// <param name="configurator"> Конфигуратор RMQ. </param>
+        /// <param name="configuration"> Конфигурация приложения. </param>
+        private static void ConfigureRmq( IRabbitMqBusFactoryConfigurator configurator, IConfiguration configuration )
+        {
+            var rmqSettings = configuration.Get<ApplicationSettings>().RmqSettings;
+
+            configurator.Host( rmqSettings.Host,
+                rmqSettings.VHost,
+                hostConfigurator =>
+                {
+                    hostConfigurator.Username( rmqSettings.Login );
+                    hostConfigurator.Password( rmqSettings.Password );
+                } );
+        }
+
+        /// <summary>
+        /// регистрация эндпоинтов
+        /// </summary>
+        /// <param name="configurator"></param>
+        private static void RegisterEndPoints( IRabbitMqBusFactoryConfigurator configurator )
+        {
+            configurator.ReceiveEndpoint( $"masstransit_promocode_queue_1", e =>
+            {
+                e.Consumer<PromocodeConsumer>();
+                e.UseMessageRetry( r =>
+                {
+                    r.Incremental( 3, TimeSpan.FromSeconds( 1 ), TimeSpan.FromSeconds( 1 ) );
+                } );
+                e.PrefetchCount = 1;
+                e.UseConcurrencyLimit( 1 );
+            } );
         }
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +12,8 @@ using Pcf.ReceivingFromPartner.DataAccess;
 using Pcf.ReceivingFromPartner.DataAccess.Repositories;
 using Pcf.ReceivingFromPartner.DataAccess.Data;
 using Pcf.ReceivingFromPartner.Integration;
+using Pcf.ReceivingFromPartner.WebHost.Settings;
+using MassTransit;
 
 namespace Pcf.ReceivingFromPartner.WebHost
 {
@@ -43,6 +45,19 @@ namespace Pcf.ReceivingFromPartner.WebHost
             {
                 c.BaseAddress = new Uri(Configuration["IntegrationSettings:AdministrationApiUrl"]);
             });
+
+            services.AddMassTransit( busConfigurator => {
+                //busConfigurator.SetKebabCaseEndpointNameFormatter();
+
+                busConfigurator.UsingRabbitMq( ( context, configurator ) =>
+                {
+                    ConfigureRmq( configurator, Configuration );
+
+                    //configurator.ConfigureEndpoints( context );
+
+                    configurator.ConfigureEndpoints( context );
+                } );
+            } );
 
             services.AddDbContext<DataContext>(x =>
             {
@@ -89,6 +104,24 @@ namespace Pcf.ReceivingFromPartner.WebHost
             });
 
             dbInitializer.InitializeDb();
+        }
+
+        /// <summary>
+        /// Конфигурирование RMQ.
+        /// </summary>
+        /// <param name="configurator"> Конфигуратор RMQ. </param>
+        /// <param name="configuration"> Конфигурация приложения. </param>
+        private static void ConfigureRmq( IRabbitMqBusFactoryConfigurator configurator, IConfiguration configuration )
+        {
+            var rmqSettings = configuration.Get<ApplicationSettings>().RmqSettings;
+
+            configurator.Host( rmqSettings.Host,
+                rmqSettings.VHost,
+                hostConfigurator =>
+                {
+                    hostConfigurator.Username( rmqSettings.Login );
+                    hostConfigurator.Password( rmqSettings.Password );
+                } );
         }
     }
 }
