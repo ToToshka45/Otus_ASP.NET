@@ -1,0 +1,15 @@
+.cat-fact-info-box {
+    background-color: green;
+}
+
+.cat-fact-info-box-item {
+    text-align: left;
+}
+
+.cat-fact-info-box-item-length {
+    font-weight: bold;
+}
+
+.cat-fact-error {
+    background-color: red;
+}
