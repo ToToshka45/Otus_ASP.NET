@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +10,11 @@ using Pcf.Administration.DataAccess.Repositories;
 using Pcf.Administration.DataAccess.Data;
 using Pcf.Administration.Core.Abstractions.Repositories;
 using System;
+using MassTransit;
+using Pcf.Administration.WebHost.Settings;
+using Pcf.Administration.WebHost.Consumers;
+using Pcf.Administration.Core.Abstractions.Services;
+using Pcf.Administration.Core.Services;
 
 namespace Pcf.Administration.WebHost
 {
@@ -37,6 +42,25 @@ namespace Pcf.Administration.WebHost
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
+
+            services.AddScoped( typeof( IEmployeeService ), typeof( EmployeeService ) );
+
+            services.AddMassTransit( busConfigurator =>
+            {
+                busConfigurator.SetKebabCaseEndpointNameFormatter();
+
+                busConfigurator.AddConsumer<NotifyAdminConsumer>();
+
+                busConfigurator.UsingRabbitMq( ( context, configurator ) =>
+                {
+                    ConfigureRmq( configurator, Configuration );
+
+                    //RegisterEndPoints( configurator );
+
+                    configurator.ConfigureEndpoints( context );
+                } );
+            } );
+            //services.AddHostedService<MasstransitService>();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -75,6 +99,42 @@ namespace Pcf.Administration.WebHost
             });
 
             dbInitializer.InitializeDb();
+        }
+
+        /// <summary>
+        /// Конфигурирование RMQ.
+        /// </summary>
+        /// <param name="configurator"> Конфигуратор RMQ. </param>
+        /// <param name="configuration"> Конфигурация приложения. </param>
+        private static void ConfigureRmq( IRabbitMqBusFactoryConfigurator configurator, IConfiguration configuration )
+        {
+            var rmqSettings = configuration.Get<ApplicationSettings>().RmqSettings;
+
+            configurator.Host( rmqSettings.Host,
+                rmqSettings.VHost,
+                hostConfigurator =>
+                {
+                    hostConfigurator.Username( rmqSettings.Login );
+                    hostConfigurator.Password( rmqSettings.Password );
+                } );
+        }
+
+        /// <summary>
+        /// регистрация эндпоинтов
+        /// </summary>
+        /// <param name="configurator"></param>
+        private static void RegisterEndPoints( IRabbitMqBusFactoryConfigurator configurator )
+        {
+            configurator.ReceiveEndpoint( "notify-admin", e =>
+            {
+                //e.Consumer<NotifyAdminConsumer>();
+                e.UseMessageRetry( r =>
+                {
+                    r.Incremental( 3, TimeSpan.FromSeconds( 1 ), TimeSpan.FromSeconds( 1 ) );
+                } );
+                e.PrefetchCount = 1;
+                e.UseConcurrencyLimit( 1 );
+            } );
         }
     }
 }
