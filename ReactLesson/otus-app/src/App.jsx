@@ -7,6 +7,11 @@ import About from './components/About';
 import Login from './components/Login';
 import Register from './components/Register';
 import NotFound404 from './components/NotFound404';
+import { Counter } from './components/counter/Counter';
+
+import '@material/web/button/outlined-button.js';
+import '@material/web/checkbox/checkbox.js';
+import '@material/web/textfield/outlined-text-field.js';
 
 function App() {
 
@@ -18,6 +23,7 @@ function App() {
       <Routes>
         <Route index element={<Home />} />
         <Route path="catFact" element={<CatFact />} />
+        <Route path="counter" element={<Counter />} />
         <Route path="about" element={<About />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />

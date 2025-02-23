@@ -19,6 +19,11 @@ export const NavBar = () => {
                 </NavLink>
                 </li>
                 <li>
+                <NavLink to={"/counter"} className={ ({ isActive }) => { return setActiveRouteClassActive(isActive) } }>
+                    Counter
+                </NavLink>
+                </li>
+                <li>
                 <NavLink to={"/about"} className={ ({ isActive }) => { return setActiveRouteClassActive(isActive) } }>
                     About
                 </NavLink>

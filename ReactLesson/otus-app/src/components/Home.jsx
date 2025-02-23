@@ -1,13 +1,30 @@
-import '@material/web/button/filled-button.js';
-import '@material/web/button/outlined-button.js';
-import '@material/web/checkbox/checkbox.js';
-import '@material/web/textfield/outlined-text-field.js';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectComments,
+} from "./Cat/catFactSlice";
 
 const Home = (props) => {
 
+  //const comments = useSelector(selectComments);
+
     return (
-      <div className="home">
+      <div>
+        <div className="home">
           Домашняя страница
+        </div>
+        {/* <div className="row">
+          {comments.map((item, i) => {
+            return (
+              <div className="row text-center" key={i}>
+                <div className="col-xs-12 center-block text-center">
+                  <p>
+                    {item}
+                  </p>
+                </div>
+              </div>
+            )})
+          }
+        </div> */}
       </div>
     );
   
