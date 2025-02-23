@@ -1,5 +1,5 @@
 .cat-fact-info-box {
-    background-color: green;
+    background-color: rgb(117, 179, 117);
 }
 
 .cat-fact-info-box-item {
@@ -11,5 +11,5 @@
 }
 
 .cat-fact-error {
-    background-color: red;
+    background-color: rgb(207, 102, 102);
 }

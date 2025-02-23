@@ -33,15 +33,13 @@ const CatFact = (props) => {
     return (
         <div className="cat-fact">
 
-            Cat Facts
-
-            <br/>
+            <div>Cat Facts</div>
 
             {container}
 
-            <br/>
-
-            <CatFactGetButton onGetSuccess={catFactsSuccessHandler} onGetError={catFactsErrorHandler} />
+            <div>
+                <CatFactGetButton onGetSuccess={catFactsSuccessHandler} onGetError={catFactsErrorHandler} />
+            </div>
 
         </div>
     );
