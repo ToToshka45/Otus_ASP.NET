@@ -1,10 +1,14 @@
 import { NavLink } from "react-router-dom";
+import { logout } from "./authSlice"
+import { useDispatch } from 'react-redux';
 
 function setActiveRouteClassActive(isActive) {
     return isActive ? "active-route" : "";
 }
 
 export const NavBar = () => {
+    const dispatch = useDispatch();
+
     return (
         <nav className="header">
             <ul>
@@ -28,7 +32,15 @@ export const NavBar = () => {
                     About
                 </NavLink>
                 </li>
+                <li>
+                <NavLink to={"/login"} className={ ({ isActive }) => { return setActiveRouteClassActive(isActive) } }>
+                    Login
+                </NavLink>
+                </li>
             </ul>
+            <div>
+                <md-outlined-button onClick={ () => dispatch(logout()) }>Logout</md-outlined-button>
+            </div>
         </nav>
     );
 };

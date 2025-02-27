@@ -8,6 +8,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import NotFound404 from './components/NotFound404';
 import { Counter } from './components/counter/Counter';
+import { withAuth } from "./components/Authorization"
 
 import '@material/web/button/outlined-button.js';
 import '@material/web/checkbox/checkbox.js';
@@ -21,7 +22,7 @@ function App() {
       <NavBar />
 
       <Routes>
-        <Route index element={<Home />} />
+        <Route index element={withAuth(Home)} />
         <Route path="catFact" element={<CatFact />} />
         <Route path="counter" element={<Counter />} />
         <Route path="about" element={<About />} />

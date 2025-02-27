@@ -9,12 +9,12 @@ import {
 } from "./catFactSlice";
 
 const CatFactInfo = (props) => {
+  const dispatch = useDispatch();
+
   const commentsCount = useSelector(selectCommentsCount);
   const comments = useSelector(selectComments);
 
-  const dispatch = useDispatch();
-
-  const [newComment, setNewComment] = useState("2");
+  const [newComment, setNewComment] = useState("New Comment");
 
   var infoBox;
   if (props.catFactsInfo) {
@@ -80,16 +80,13 @@ const CatFactInfo = (props) => {
         </div>
 
         <div className="row">
-          {comments.map((item, i) => {
-            return (
+          {comments.map((item, i) => (
               <div className="row text-center" key={i}>
-                <div className="col-xs-12 center-block text-center">
                   <p>
                     {item}
                   </p>
-                </div>
               </div>
-            )})
+            ))
           }
         </div>
       </div>
