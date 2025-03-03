@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
-import { logout } from "./authSlice"
-import { useDispatch } from 'react-redux';
+import { logout, isAuth } from "./authSlice"
+import { useDispatch, useSelector } from 'react-redux';
 
 function setActiveRouteClassActive(isActive) {
     return isActive ? "active-route" : "";
@@ -8,6 +8,15 @@ function setActiveRouteClassActive(isActive) {
 
 export const NavBar = () => {
     const dispatch = useDispatch();
+
+    const isLoggedIn = useSelector(isAuth);
+
+    var loginOrLogoutBtn;
+    if (isLoggedIn) {
+        loginOrLogoutBtn = <md-outlined-button onClick={ () => dispatch(logout()) }>Logout</md-outlined-button>
+    } else {
+        loginOrLogoutBtn = <NavLink to={"/login"} className={ ({ isActive }) => { return setActiveRouteClassActive(isActive) } }>Login</NavLink>
+    }
 
     return (
         <nav className="header">
@@ -32,14 +41,9 @@ export const NavBar = () => {
                     About
                 </NavLink>
                 </li>
-                <li>
-                <NavLink to={"/login"} className={ ({ isActive }) => { return setActiveRouteClassActive(isActive) } }>
-                    Login
-                </NavLink>
-                </li>
             </ul>
-            <div>
-                <md-outlined-button onClick={ () => dispatch(logout()) }>Logout</md-outlined-button>
+            <div className="logout-bar">
+                {loginOrLogoutBtn}
             </div>
         </nav>
     );

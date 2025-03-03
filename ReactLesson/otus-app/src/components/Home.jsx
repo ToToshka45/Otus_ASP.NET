@@ -11,15 +11,15 @@ const Home = () => {
         <div className="home">
           <h1>Домашняя страница</h1>
           <div className="row">
-          {comments.map((item, i) => (
-              <div className="row text-center" key={i}>
-                  <p>
-                    {item}
-                  </p>
-              </div>
-            ))
-          }
-        </div>
+            {comments.map((item, i) => (
+                <div className="row text-center" key={i}>
+                    <p>
+                      {item}
+                    </p>
+                </div>
+              ))
+            }
+          </div>
         </div>
 
       </div>

@@ -22,10 +22,10 @@ function App() {
       <NavBar />
 
       <Routes>
-        <Route index element={withAuth(Home)} />
-        <Route path="catFact" element={<CatFact />} />
-        <Route path="counter" element={<Counter />} />
-        <Route path="about" element={<About />} />
+        <Route index element={<Home />} />
+        <Route path="catFact" element={withAuth(CatFact)} />
+        <Route path="counter" element={withAuth(Counter)} />
+        <Route path="about" element={withAuth(About)} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="notFound404" element={<NotFound404 />} />
