@@ -2,37 +2,71 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+ul, .logout-bar {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
-  flex-direction: column;
+  gap: 24px;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.logout-bar {
+  float: right;
+  margin-left: auto; 
+  margin-right: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+a {
+  all: unset;
+  cursor: pointer;
 }
+
+nav.header {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100px;
+  background-color: white;
+  padding: 20px 40px;
+  box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
+}
+
+.home,
+.about,
+.cat-fact,
+.login,
+.register,
+.not-found-404 {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px 40px;
+}
+
+.home,
+.about {
+  background-color: #f6f6f6;
+}
+
+.active-route {
+  color: #fb5304;
+}
+
+.cat-fact {
+  background-color: white;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 20px 40px;
+  gap: 24px;
+}
+
+
+
