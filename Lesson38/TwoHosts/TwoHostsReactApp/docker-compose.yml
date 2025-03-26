@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: TwoHostsReactApp.Server/Dockerfile
+    container_name: backend
+    ports:
+      - "8090:8090"
+    environment:
+      - ASPNETCORE_URLS=http://+:8090
+    networks:
+      - appnet
+
+  frontend:
+    build:
+      context: ./fronreactapp.client
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:80"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
