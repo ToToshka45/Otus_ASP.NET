@@ -15,8 +15,8 @@ If you are developing a production application, we recommend using TypeScript an
 
 docker compose up
 
+http://localhost:3000/
 
-
-
+http://localhost:8090/swagger/index.html
 
 
