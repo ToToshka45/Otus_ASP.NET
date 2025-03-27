@@ -12,8 +12,13 @@
       <ProjectReference Include="..\Pcf.GivingToCustomer.Integration\Pcf.GivingToCustomer.Integration.csproj" />
     </ItemGroup>
 
+  <ItemGroup>
+    <Protobuf Include="Protos\promocoder.proto" GrpcServices="Server" />
+  </ItemGroup>
+
     <ItemGroup>
       <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
+      <PackageReference Include="Grpc.AspNetCore" Version="2.70.0" />
       <PackageReference Include="MassTransit" Version="8.3.4" />
       <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />

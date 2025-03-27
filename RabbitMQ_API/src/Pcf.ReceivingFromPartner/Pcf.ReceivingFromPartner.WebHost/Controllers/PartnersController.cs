@@ -26,20 +26,23 @@ namespace Pcf.ReceivingFromPartner.WebHost.Controllers
         private readonly IRepository<Preference> _preferencesRepository;
         private readonly INotificationGateway _notificationGateway;
         private readonly IGivingPromoCodeToCustomerGateway _givingPromoCodeToCustomerGateway;
+        private readonly IGivingPromoCodeToCustomerGrpcGateway _givingPromoCodeToCustomerGrpcGateway;
         private readonly IAdministrationGateway _administrationGateway;
         private readonly IBusControl _busControl;
 
         public PartnersController(IRepository<Partner> partnersRepository,
             IRepository<Preference> preferencesRepository,
             INotificationGateway notificationGateway,
-            IGivingPromoCodeToCustomerGateway givingPromoCodeToCustomerGateway,
+            //IGivingPromoCodeToCustomerGateway givingPromoCodeToCustomerGateway,
+            IGivingPromoCodeToCustomerGrpcGateway givingPromoCodeToCustomerGrpcGateway,
             IAdministrationGateway administrationGateway,
             IBusControl busControl)
         {
             _partnersRepository = partnersRepository;
             _preferencesRepository = preferencesRepository;
             _notificationGateway = notificationGateway;
-            _givingPromoCodeToCustomerGateway = givingPromoCodeToCustomerGateway;
+            //_givingPromoCodeToCustomerGateway = givingPromoCodeToCustomerGateway;
+            _givingPromoCodeToCustomerGrpcGateway = givingPromoCodeToCustomerGrpcGateway;
             _administrationGateway = administrationGateway;
             _busControl = busControl;
         }
@@ -338,24 +341,21 @@ namespace Pcf.ReceivingFromPartner.WebHost.Controllers
 
             //TODO: Чтобы информация о том, что промокод был выдан парнером была отправлена
             //в микросервис рассылки клиентам нужно либо вызвать его API, либо отправить событие в очередь
-            //await _givingPromoCodeToCustomerGateway.GivePromoCodeToCustomer(promoCode);
+            await _givingPromoCodeToCustomerGrpcGateway.GivePromoCodeToCustomer(promoCode);
 
-            var promoCodeEvent = new PromocodeEvent()
-            { 
-                Code = promoCode.Code,
-                ServiceInfo = promoCode.ServiceInfo,
-                BeginDate = promoCode.BeginDate.ToShortDateString(),
-                EndDate = promoCode.EndDate.ToShortDateString(),
-                PartnerManagerId = promoCode.PartnerManagerId,
+            //var promoCodeEvent = new PromocodeEvent()
+            //{ 
+            //    Code = promoCode.Code,
+            //    ServiceInfo = promoCode.ServiceInfo,
+            //    BeginDate = promoCode.BeginDate.ToShortDateString(),
+            //    EndDate = promoCode.EndDate.ToShortDateString(),
+            //    PartnerManagerId = promoCode.PartnerManagerId,
 
-                PartnerId = promoCode.PartnerId,
-                PreferenceId = promoCode.PreferenceId,
-            };
+            //    PartnerId = promoCode.PartnerId,
+            //    PreferenceId = promoCode.PreferenceId,
+            //};
 
-            await _busControl.Publish( promoCodeEvent, CancellationToken.None );
-
-            //TODO: Чтобы информация о том, что промокод был выдан парнером была отправлена
-            //в микросервис администрирования нужно либо вызвать его API, либо отправить событие в очередь
+            //await _busControl.Publish( promoCodeEvent, CancellationToken.None );
 
             if ( request.PartnerManagerId.HasValue )
             {

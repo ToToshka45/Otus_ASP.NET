@@ -1,0 +1,10 @@
+{
+  "ServiceInfo": "Human",
+  "PartnerId": "{{ faker.random.uuid }}",
+  "PromoCodeId": "{{ faker.random.uuid }}",
+  "PromoCode": "incremental solid state Small",
+  "PreferenceId": "{{ faker.random.uuid }}",
+  "BeginDate": "mint green USB",
+  "EndDate": "users",
+  "PartnerManagerId": "{{ faker.random.uuid }}"
+}

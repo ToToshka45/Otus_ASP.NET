@@ -1,0 +1,14 @@
+{
+  "details": {
+    "methodFqn": "promocode.Promocoder.GivePromoCodeToCustomer",
+    "disableServerCertificateValidation": false
+  },
+  "requests": [
+    {
+      "location": "GivePromoCodeToCustomer-request.json"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "grpc",
+  "importStreamId": "380490d9-36d2-4a0d-a58a-38209bed70eb"
+}

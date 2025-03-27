@@ -17,6 +17,7 @@ using Pcf.GivingToCustomer.WebHost.Consumers;
 using Pcf.GivingToCustomer.WebHost.Settings;
 using Pcf.GivingToCustomer.Core.Abstractions.Services;
 using Pcf.GivingToCustomer.Core.Services;
+using Pcf.GivingToCustomer.WebHost.Services;
 
 namespace Pcf.GivingToCustomer.WebHost
 {
@@ -65,6 +66,8 @@ namespace Pcf.GivingToCustomer.WebHost
             } );
             //services.AddHostedService<MasstransitService>();
 
+            services.AddGrpc();
+
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             services.AddOpenApiDocument(options =>
@@ -98,6 +101,8 @@ namespace Pcf.GivingToCustomer.WebHost
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGrpcService<PromocoderService>();
+
                 endpoints.MapControllers();
             });
 
