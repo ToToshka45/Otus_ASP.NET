@@ -1,0 +1,20 @@
+{
+  "id": "fecf688a-7187-43e8-8fff-21c8d4255cfc",
+  "importStreams": [
+    {
+      "id": "380490d9-36d2-4a0d-a58a-38209bed70eb",
+      "name": "proto-file",
+      "importerName": "ProtoFile",
+      "createMissingOperations": true,
+      "options": {
+        "files": [
+          "../src/Pcf.GivingToCustomer/Pcf.GivingToCustomer.WebHost/Protos/promocoder.proto"
+        ],
+        "importPaths": [],
+        "excludedFiles": []
+      }
+    }
+  ],
+  "authConfigs": [],
+  "certificates": []
+}

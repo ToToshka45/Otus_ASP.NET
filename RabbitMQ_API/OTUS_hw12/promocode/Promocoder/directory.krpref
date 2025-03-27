@@ -1,0 +1,19 @@
+{
+  "settings": [
+    {
+      "options": {
+        "grpc": {
+          "endpoint": "https://localhost:8093",
+          "mode": "grpc"
+        },
+        "rest": {
+          "pathParams": [],
+          "version": "http20"
+        },
+        "websocket": {
+          "version": "http20"
+        }
+      }
+    }
+  ]
+}

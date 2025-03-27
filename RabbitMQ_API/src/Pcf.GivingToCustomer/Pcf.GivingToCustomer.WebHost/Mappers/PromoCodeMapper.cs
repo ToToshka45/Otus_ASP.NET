@@ -90,6 +90,21 @@ namespace Pcf.GivingToCustomer.WebHost.Mappers
             return dto;
         }
 
+        internal static GivePromoCodeDto MapFromGrpcModelToDto( GivePromoCodeToCustomerRequest request )
+        {
+            var dto = new GivePromoCodeDto();
+
+            dto.ServiceInfo = request.ServiceInfo;
+            dto.PartnerId = string.IsNullOrEmpty( request.PartnerId ) ? Guid.Empty : Guid.Parse( request.PartnerId );
+            dto.PromoCodeId = string.IsNullOrEmpty( request.PromoCodeId ) ? Guid.Empty : Guid.Parse( request.PromoCodeId );
+            dto.PromoCode = request.PromoCode;
+            dto.PreferenceId = string.IsNullOrEmpty( request.PreferenceId ) ? Guid.Empty : Guid.Parse( request.PreferenceId );
+            dto.BeginDate = request.BeginDate;
+            dto.EndDate = request.EndDate;
+
+            return dto;
+        }
+
         internal static GivePromoCodeDto MapFromEventToDto( PromocodeEvent pEvent )
         {
             var dto = new GivePromoCodeDto();
